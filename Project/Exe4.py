@@ -7,7 +7,7 @@ def b_ary(nb_expansion, base):
     Parameters
     ----------
     nb_expansion : array_like
-        The array of expansion serie
+        The array of expansion series
     base : int
         Base of the expansion
 
@@ -16,38 +16,63 @@ def b_ary(nb_expansion, base):
     nb_expansion : array_like
          The nb expansion
     """
-    nb_expansion += 1
-    nn = np.where(nb_expansion < base)[0][0]
-    nb_expansion[0:nn] = 0
-    nb_expansion[nn + 1:] -= 1
+    list_index_to_increment = np.where(nb_expansion < base - 1)
+
+    if len(list_index_to_increment[0] != 0):
+        index_to_increment = list_index_to_increment[0][0]
+        nb_expansion[0:index_to_increment] = 0
+        nb_expansion[index_to_increment] += 1
+
+    else:
+        nb_expansion = nb_expansion * 0
+        nb_expansion = np.append(nb_expansion, 1)
     return nb_expansion
 
 
-nb_exp = np.array([9, 9, 2, 1])
-base_ = 10
-
-nb_exp = b_ary(nb_exp, base_)
-print(nb_exp)
-
-
-def van_der_corput(nb, base):
-    l = []
-    while nb > 0:
-        q = nb % base
-        l.append(q)
-        nb = nb // base
-
-    l.reverse()
-    return l
+def generate_k_b_ary_expansion(k, base=10):
+    """
+        Generate an array with k expansion
+    :param k: int
+        The number of value in the expansion
+    :param base: int
+        The base of calculation. Default : 10
+    :return: array_like
+        The array with the k expansion
+    """
+    nb_exp = np.array([0, 0, 0, 0])
+    l = np.array([b_ary(nb_exp, base).copy() for i in range(k)])
+    return np.array(l)
 
 
-def first_term_VDC(n, base):
-    list_vdc = []
-    for i in range(1, n + 1):
-        x = van_der_corput(i, base)
-        var = 0
-        n = len(x)
+def van_der_corput_sequence(k, base):
+    """
+        Calculate the van der corput sequence of k number for the base selected
+    :param k: int
+        The number of value in the expansion
+    :param base: int
+        The base of calculation. Default : 10
+    :return: list
+        The list of the Van Der Corput Sequences
+    """
+    k_b_ary_expansion = generate_k_b_ary_expansion(k, base)
+    list_res = []
+    for elem in k_b_ary_expansion:
+        n = len(elem)
+        nb = 0
         for i in range(n):
-            var += x[i] / base ** (n - i)
-        list_vdc.append(var)
-        return list_vdc
+            nb += elem[i] / base ** (i + 1)
+
+        list_res.append(nb)
+    return list_res
+
+
+k = 10
+base10 = 10
+base2 = 2
+
+test_b10 = van_der_corput_sequence(k, base10)
+test_b2 = van_der_corput_sequence(k, base2)
+
+print("The Van Der Corput Sequences with base 2 is :\n{}".format(test_b2))
+print()
+print("The Van Der Corput Sequences with base 10 is :\n{}".format(test_b10))
