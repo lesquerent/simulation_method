@@ -1,3 +1,6 @@
+from Project.Exe4 import generate_k_b_ary_expansion
+import numpy as np
+
 def van_der_corput(nb, base):
     l = []
     while nb > 0:
@@ -20,4 +23,6 @@ def first_term_VDC(n, base):
         list_vdc.append(var)
     return list_vdc
 
-print(first_term_VDC(10,2))
+
+
+

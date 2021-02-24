@@ -51,27 +51,24 @@ def van_der_corput_sequence(k, base):
         The number of value in the expansion
     :param base: int
         The base of calculation. Default : 10
-    :return: list
+    :return: array_like
         The list of the Van Der Corput Sequences
     """
     k_b_ary_expansion = generate_k_b_ary_expansion(k, base)
-    list_res = []
-    for elem in k_b_ary_expansion:
-        n = len(elem)
-        nb = 0
-        for i in range(n):
-            nb += elem[i] / base ** (i + 1)
+    n = len(k_b_ary_expansion[-1])
 
-        list_res.append(nb)
-    return list_res
+    bj = np.linspace(1, n, n)
+    bj = 1 / (base ** bj)
+
+    return k_b_ary_expansion.dot(bj)
 
 
-k = 10
+k_ = 10
 base10 = 10
 base2 = 2
 
-test_b10 = van_der_corput_sequence(k, base10)
-test_b2 = van_der_corput_sequence(k, base2)
+test_b10 = van_der_corput_sequence(k_, base10)
+test_b2 = van_der_corput_sequence(k_, base2)
 
 print("The Van Der Corput Sequences with base 2 is :\n{}".format(test_b2))
 print()
