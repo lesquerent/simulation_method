@@ -40,8 +40,8 @@ def generate_k_b_ary_expansion(k, base=10):
         The array with the k expansion
     """
     nb_exp = np.array([0, 0, 0, 0])
-    l = np.array([b_ary(nb_exp, base).copy() for i in range(k)])
-    return l
+    k_b_ary_expansion = np.array([b_ary(nb_exp, base).copy() for i in range(k)])
+    return k_b_ary_expansion
 
 
 def van_der_corput_sequence(k, base):
