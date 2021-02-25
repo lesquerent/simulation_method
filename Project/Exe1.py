@@ -6,7 +6,7 @@ def z_distribution():
 
     Returns
     -------
-        :type array
+        :type numpy.array
         Value of z following the positive part of a normal N(0,1) distribution
         Number of iteration necessary to generate z
     """

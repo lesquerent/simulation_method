@@ -1,28 +1,18 @@
-from Project.Exe4 import generate_k_b_ary_expansion
-import numpy as np
+from import_packages import *
 
-def van_der_corput(nb, base):
-    l = []
-    while nb > 0:
-        q = nb % base
-        l.append(q)
-        nb = nb // base
+def nb_of_try_for_z_distribution():
+    """
 
-    l.reverse()
-    return l
-
-
-def first_term_VDC(n, base):
-    list_vdc = []
-    for i in range(1, n + 1):
-        x = van_der_corput(i, base)
-        var = 0
-        n = len(x)
-        for i in range(n):
-            var += x[i] / base ** (n - i)
-        list_vdc.append(var)
-    return list_vdc
+    Returns
+    -------
+        Value of z following the positive part of a normal N(0,1) distribution
+    """
 
 
 
 
+
+print(z_value)
+print(nb_try)
+print(sum(nb_try))
+print(sum(nb_try)/len(z_value))

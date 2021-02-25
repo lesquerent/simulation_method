@@ -73,5 +73,3 @@ test_b2 = van_der_corput_sequence(k_, base2)
 print("The Van Der Corput Sequences with base 2 is :\n{}".format(test_b2))
 print()
 print("The Van Der Corput Sequences with base 10 is :\n{}".format(test_b10))
-
-
