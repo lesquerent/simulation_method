@@ -63,6 +63,52 @@ def van_der_corput_sequence(k, base):
     return k_b_ary_expansion.dot(bj)
 
 
+def price_evolution_with_MC_method_VDC_seq(spot_price, strike_price, volatility, maturity, risk_free_rate, nb_sequences,
+                                   nb_price=1):
+    """
+    Return the array of all prices during the simulation
+
+    Parameters
+    ----------
+    spot_price : DOUBLE
+        Value of the underlying price today.
+    strike_price : DOUBLE
+         Strike value.
+    volatility : DOUBLE
+        Expected annualized volatility of the underlying during the period.
+    risk_free_rate : DOUBLE
+        Risk free rate.
+    maturity : DOUBLE
+        Maturity of the option.
+    nb_sequences : INT
+        Number of prices sequences.
+    nb_price : INT
+        Number of prices per sequences. Default : 1
+
+
+    Returns
+    -------
+    array_of_all_prices : ARRAY_LIKE
+        Array with all prices.
+
+    """
+
+    delta_t = maturity / nb_price
+    array_of_normal = np.random.normal(0, 1, (nb_sequences, nb_price))
+
+    array_of_rand_VDC_seq = van_der_corput_sequence(int(nb_sequences/2),2)
+    array_of_rand_VDC_seq = np.append(array_of_rand_VDC_seq,-array_of_rand_VDC_seq)
+    array_of_variation = ((risk_free_rate - ((volatility ** 2) / 2)) * delta_t) + (volatility * sqrt(delta_t)
+                                                                                   * array_of_normal)
+    cumulated_variation = np.cumsum(array_of_variation, axis=1)
+
+    array_of_all_prices = spot_price * np.exp(cumulated_variation)
+    # add S0 in all prices array
+    array_of_all_prices = np.c_[spot_price * np.ones(array_of_all_prices.shape[0]), array_of_all_prices]
+
+    return array_of_all_prices
+
+
 k_ = 10
 base10 = 10
 base2 = 2
@@ -73,5 +119,3 @@ test_b2 = van_der_corput_sequence(k_, base2)
 print("The Van Der Corput Sequences with base 2 is :\n{}".format(test_b2))
 print()
 print("The Van Der Corput Sequences with base 10 is :\n{}".format(test_b10))
-
-
