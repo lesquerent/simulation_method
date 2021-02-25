@@ -1,48 +1,96 @@
-import numpy as np
-import scipy.stats
-import matplotlib.pyplot as plt
-from TD1 import *
-
-spot_price = 100
-strike_price = 150
-maturity = 1.0
-volatility = 0.2
-risk_free_rate = 0.01
-
-# Exercise 3 MC and BS
-nb_sequences = 100000
-nb_price = 1
-type_option = 'call'
-
-# Monte carlo pricing
-call_option_priced_with_MC_method = pricing_option_with_MC_method(spot_price, strike_price, volatility, maturity,
-                                                                  risk_free_rate,
-                                                                  nb_sequences, nb_price, type_option)
-
-all_price = call_option_priced_with_MC_method[1]
-mean_payoff = call_option_priced_with_MC_method[2]
-option_price = call_option_priced_with_MC_method[0]
-array_of_payoff = call_option_priced_with_MC_method[3]
-interval_of_confidence = get_confidence_interval(array_of_payoff, option_price)
+from import_packages import *
 
 
+def pricing_call_option_with_BS(spot_price, strike_price, maturity, volatility, risk_free_rate, dividend_yield=0):
+    """
+    Return the price off an European call option with the Black-Scholes method
 
-mu = 0.3
-new_call_option_priced_with_MC_method = pricing_option_with_MC_method(spot_price, strike_price, volatility, maturity,
-                                                                  mu,
-                                                                  nb_sequences, nb_price, type_option)
+    Parameters
+    ----------
+    spot_price : DOUBLE
+        Value of the underlying's price today.
+    strike_price : DOUBLE
+        Strike value.
+    maturity : DOUBLE
+        Maturity of the option.
+    volatility : DOUBLE
+        Expected annualized volatility of the underlying during the period..
+    risk_free_rate : DOUBLE
+        Risk free rate.
+    dividend_yield : DOUBLE
+        Expected dividend yield. Default : 0
 
-new_all_price = new_call_option_priced_with_MC_method[1]
-new_mean_payoff = new_call_option_priced_with_MC_method[2]
-new_option_price = new_call_option_priced_with_MC_method[0]
-new_array_of_payoff = new_call_option_priced_with_MC_method[3]
 
-plt.hist(all_price[:, -1], 100)
-plt.hist(new_all_price[:, -1], 100)
-plt.show()
+    Returns
+    -------
+    price : DOUBLE
+        Value of the option.
 
-S_T = all_price[:, -1]
-new_S_T = new_all_price[:, -1]
+    """
 
-radon_nikodym_der = np.exp(-(np.log(new_S_T/spot_price) - (risk_free_rate - volatility*volatility/2)*maturity)**2/(2*volatility*volatility*maturity)
-                           +(np.log(new_S_T)))
+    d1 = (np.log(spot_price / strike_price) + maturity * (risk_free_rate - dividend_yield + volatility ** 2 / 2)) / (
+            volatility * np.sqrt(maturity))
+
+    d2 = d1 - volatility * np.sqrt(maturity)
+
+    price = spot_price * np.exp(-dividend_yield * maturity) * stats.norm.cdf(d1) - strike_price * np.exp(
+        -risk_free_rate * maturity) * stats.norm.cdf(d2)
+
+    return price
+
+
+def pricing_digital_call_option_with_BS(spot_price, strike_price, maturity, volatility, risk_free_rate,
+                                        dividend_yield=0):
+    """
+    Return the price off an European digital call option with the Black-Scholes method
+
+    Parameters
+    ----------
+    spot_price : DOUBLE
+        Value of the underlying's price today.
+    strike_price : DOUBLE
+        Strike value.
+    maturity : DOUBLE
+        Maturity of the option.
+    volatility : DOUBLE
+        Expected annualized volatility of the underlying during the period..
+    risk_free_rate : DOUBLE
+        Risk free rate.
+    dividend_yield : DOUBLE
+        Expected dividend yield. Default : 0
+
+
+    Returns
+    -------
+    price : DOUBLE
+        Value of the option.
+
+    """
+
+    x = (np.log(strike_price) - np.log(spot_price) - (risk_free_rate - (1 / 2) * volatility ** 2) * maturity) \
+        / (volatility * np.sqrt(maturity))
+
+    price = np.exp(-_strike_price * maturity) * stats.norm.cdf(-x)
+    return price
+
+
+# Variables definition
+_spot_price = 100
+_strike_price = 100000
+_maturity = 1.0
+_volatility = 0.2
+_risk_free_rate = 0.01
+
+_nb_sequences = 100000
+_nb_price = 1
+
+## Results
+
+call_price = pricing_call_option_with_BS(_spot_price, _strike_price, _maturity, _volatility, _risk_free_rate)
+print('The price for this call far from the money is {}'.format(call_price))
+# Result : The price for this call far from the money is 1.0709944150897396e-259
+
+digital_call_price = pricing_digital_call_option_with_BS(_spot_price, _strike_price, _maturity, _volatility,
+                                                         _risk_free_rate)
+print('The price for this digital call far from the money is {}'.format(digital_call_price))
+# Result : The price for this digital call far from the money is 0.0
