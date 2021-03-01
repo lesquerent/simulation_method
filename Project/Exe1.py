@@ -3,7 +3,8 @@ from import_packages import *
 
 def z_distribution():
     """
-
+        Generate one value following the z distribution and
+        the number of try to get this value
     Returns
     -------
         :type numpy.array
@@ -39,8 +40,9 @@ normal_value = np.random.normal(0, 1, 100000)
 
 # Plot
 fig, ax = plt.subplots()
+ax.hist(z_value, bins=50, label='Z distribution ', color = "orange")
 ax.hist(normal_value, bins=50, histtype='step', label=['Normal distribution'])
-ax.hist(z_value, bins=50, label='Z distribution')
+
 ax.legend(loc='best', shadow=True)
-plt.title('Distribution of Z')
+plt.title('Distribution of Z compare to a normal N(0,1) distribution')
 plt.show()
