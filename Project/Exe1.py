@@ -1,5 +1,6 @@
 from import_packages import *
-
+from scipy.stats import norm
+from math import pi
 
 def z_distribution():
     """
@@ -38,6 +39,8 @@ print('The acceptance rate for the z distribution is {}'.format(float(acceptance
 # Generation of normal values
 normal_value = np.random.normal(0, 1, 100000)
 
+
+
 # Plot
 fig, ax = plt.subplots()
 ax.hist(z_value, bins=50, label='Z distribution ', color = "orange")
@@ -45,4 +48,26 @@ ax.hist(normal_value, bins=50, histtype='step', label=['Normal distribution'])
 
 ax.legend(loc='best', shadow=True)
 plt.title('Distribution of Z compare to a normal N(0,1) distribution')
+plt.show()
+
+
+# Z theorique
+index = np.linspace(-7, 7, 100)
+z_theoretical = (1 / 2) * np.exp(-(1 / 4) * index ** 2)
+index_pos = np.linspace(0, 7, 100)
+
+z_theoretical_pos = (1 / 2) * np.exp(-(1 / 4) * index_pos ** 2)
+
+#Normal law
+
+normal_value_pdf = (1/np.sqrt(2*pi))*np.exp((-1/2)*index**2)
+
+#plot
+
+fig2, ax2 = plt.subplots()
+#ax2.plot(index, z_theoretical, color ='yellow', label ='Theoretical z beetwen -inf and +inf')
+ax2.plot(index_pos, z_theoretical_pos, color ='red', label ='Theoretical z between 0 and +inf')
+ax2.plot(index,normal_value_pdf, color = 'blue', label = 'Normal N(0,1)')
+ax2.legend(loc='best', shadow=True)
+plt.title('Distribution of Z theoretical compare to a normal N(0,1) distribution')
 plt.show()
