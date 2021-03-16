@@ -229,37 +229,39 @@ def pricing_option_with_BS(spot_price, strike_price, maturity, volatility, risk_
     return price
 
 
-# Monte carlo pricing
+if __name__ =='__main__':
 
-# Constant declaration
-nb_sequences_ = 10000
-nb_price_ = 1
-maturity_ = 1
-risk_free_rate_ = 0.01
-volatility_ = 0.2
-spot_price_ = 100
-strike_price_ = 100
+    # Monte carlo pricing
 
-call_option_priced_with_MC_method = pricing_option_with_MC_method(spot_price_, strike_price_, volatility_, maturity_,
-                                                                  risk_free_rate_,
-                                                                  nb_sequences_, nb_price_)
+    # Constant declaration
+    nb_sequences_ = 10000
+    nb_price_ = 1
+    maturity_ = 1
+    risk_free_rate_ = 0.01
+    volatility_ = 0.2
+    spot_price_ = 100
+    strike_price_ = 100
 
-all_price = call_option_priced_with_MC_method[1]
-mean_payoff = call_option_priced_with_MC_method[2]
-option_price = call_option_priced_with_MC_method[0]
-array_of_payoff = call_option_priced_with_MC_method[3]
-interval_of_confidence = get_confidence_interval(array_of_payoff, option_price)
+    call_option_priced_with_MC_method = pricing_option_with_MC_method(spot_price_, strike_price_, volatility_, maturity_,
+                                                                      risk_free_rate_,
+                                                                      nb_sequences_, nb_price_)
 
-# Black Scholes pricing
-dividend_yield_ = 0
-call_option_priced_with_BS_method = pricing_option_with_BS(spot_price_, strike_price_, maturity_, volatility_,
-                                                           risk_free_rate_, dividend_yield_)
+    all_price = call_option_priced_with_MC_method[1]
+    mean_payoff = call_option_priced_with_MC_method[2]
+    option_price = call_option_priced_with_MC_method[0]
+    array_of_payoff = call_option_priced_with_MC_method[3]
+    interval_of_confidence = get_confidence_interval(array_of_payoff, option_price)
 
-# Display results
-print('Pricing with MC : \nPrice = {price} \nConfidence interval = {interval}'.format(price=option_price,
-                                                                                      interval=interval_of_confidence))
-print('\nPricing with BS :\n Price = {}'.format(call_option_priced_with_BS_method))
+    # Black Scholes pricing
+    dividend_yield_ = 0
+    call_option_priced_with_BS_method = pricing_option_with_BS(spot_price_, strike_price_, maturity_, volatility_,
+                                                               risk_free_rate_, dividend_yield_)
+    print('\nPricing with BS :\n Price = {}'.format(call_option_priced_with_BS_method))
+    # Display results
+    print('Pricing with MC : \nPrice = {price} \nConfidence interval = {interval}'.format(price=option_price,
+                                                                                          interval=interval_of_confidence))
+    print('\nPricing with BS :\n Price = {}'.format(call_option_priced_with_BS_method))
 
-# display_MC(call_option_priced_with_MC_method[1], call_option_priced_with_MC_method[2],
-#            call_option_priced_with_MC_method[0], array_of_payoff, maturity_)
+    # display_MC(call_option_priced_with_MC_method[1], call_option_priced_with_MC_method[2],
+    #            call_option_priced_with_MC_method[0], array_of_payoff, maturity_)
 
