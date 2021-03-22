@@ -118,14 +118,14 @@ def price_evolution_with_MC_VDC_method(spot_price, strike_price, volatility, mat
 
 
 if __name__ == '__main__':
-    k_ = 10
-    base10 = 10
-    base2 = 2
-    # test_b2 = van_der_corput_sequence(k_, base2)
-    # print("The Van Der Corput Sequences with base 2 is :\n{}".format(test_b2))
+    k_ = 100
+    base10 = 7
+    base2 = 7
+    test_b2 = van_der_corput_sequence(k_, 6)
+    print("The Van Der Corput Sequences with base 2 is :\n{}".format(test_b2))
     # print()
     # print("The Van Der Corput Sequences with base 10 is :\n{}".format(test_b10))
-
+    print(generate_k_b_ary_expansion(100, 6))
     # Variables definition
     _spot_price = 100
     _strike_price = 100

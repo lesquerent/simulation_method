@@ -19,7 +19,7 @@ def b_ary(nb_expansion, base):
          The nb expansion
     """
 
-    #expansion = nb_expansion.copy()
+    # expansion = nb_expansion.copy()
     list_index_to_increment = np.where(nb_expansion < base - 1)
 
     if len(list_index_to_increment[0] != 0):
@@ -31,7 +31,7 @@ def b_ary(nb_expansion, base):
         nb_expansion = nb_expansion * 0
         nb_expansion = np.append(nb_expansion, 1)
 
-    #nb_expansion = expansion
+    # nb_expansion = expansion
     return nb_expansion
 
 
@@ -45,7 +45,7 @@ def generate_k_b_ary_expansion(k, base=10):
     :return: array_like
         The array with the k expansion
     """
-    nb_exp = np.zeros(int(np.log(k)/np.log(base))+1)
+    nb_exp = np.zeros(int(np.log(k) / np.log(base)) + 1)
     k_b_ary_expansion = np.array([b_ary(nb_exp, base).copy() for i in range(k)])
     # k_b_ary_expansion = np.array([b_ary(nb_exp, base) for i in range(k)])
     return k_b_ary_expansion
@@ -110,10 +110,10 @@ def price_evolution_with_QMC_method_VDC_seq(spot_price, strike_price, volatility
     array_of_variation = ((risk_free_rate - ((volatility ** 2) / 2)) * delta_t) + (volatility * sqrt(delta_t)
                                                                                    * array_of_normal)
 
-    print(array_of_variation)
+    # print(array_of_variation)
     cumulated_variation = array_of_variation
 
-    # cumulated_variation = np.cumsum(array_of_variation)#, axis=0)
+    cumulated_variation = np.cumsum(array_of_variation)#, axis=1)
 
     array_of_all_prices = spot_price * np.exp(cumulated_variation)
     # add S0 in all prices array
@@ -128,16 +128,16 @@ if __name__ == '__main__':
     base2 = 2
 
     # test_bary = generate_k_b_ary_expansion(k_, base2)
+    # print('Test bary {}'.format(test_bary))
     # print(test_bary[-4:])
-
+    #
     # test_b10 = van_der_corput_sequence(k_, base2)
+    # print('VDC {}'.format(test_b10))
     # test_b2 = -van_der_corput_sequence(k_, base2)
     #
     # print("The Van Der Corput Sequences with base 2 is :\n{}".format(test_b2))
     # print()
     # print("The Van Der Corput Sequences with base 10 is :\n{}".format(test_b10))
-
-
 
     # Variables definition
     _spot_price = 100
@@ -149,8 +149,9 @@ if __name__ == '__main__':
     _nb_sequences = 1000
     _nb_price = 1
 
-    price_evolution = price_evolution_with_QMC_method_VDC_seq(_spot_price, _strike_price, _volatility, _maturity, _risk_free_rate,
-                                                     _nb_sequences)
+    price_evolution = price_evolution_with_QMC_method_VDC_seq(_spot_price, _strike_price, _volatility, _maturity,
+                                                              _risk_free_rate,
+                                                              _nb_sequences)
 
     call_price_MC = np.mean(np.maximum(price_evolution - _strike_price, 0)) * np.exp(-_risk_free_rate * _maturity)
 
