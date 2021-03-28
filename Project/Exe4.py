@@ -1,25 +1,24 @@
-import scipy
+import numpy as np
+import scipy.stats
+from scipy import stats
 
-from import_packages import *
+from Project.Exe2 import importance_sampling_pricing
 
 
 def b_ary(nb_expansion, base):
     """
-
     Parameters
     ----------
     nb_expansion : array_like
         The array of expansion series
     base : int
         Base of the expansion
-
     Returns
     -------
     nb_expansion : array_like
          The nb expansion
     """
 
-    # expansion = nb_expansion.copy()
     list_index_to_increment = np.where(nb_expansion < base - 1)
 
     if len(list_index_to_increment[0] != 0):
@@ -31,7 +30,6 @@ def b_ary(nb_expansion, base):
         nb_expansion = nb_expansion * 0
         nb_expansion = np.append(nb_expansion, 1)
 
-    # nb_expansion = expansion
     return nb_expansion
 
 
@@ -70,102 +68,82 @@ def van_der_corput_sequence(k, base):
     return k_b_ary_expansion.dot(bj)
 
 
-def price_evolution_with_QMC_method_VDC_seq(spot_price, strike_price, volatility, maturity, risk_free_rate,
-                                            nb_sequences,
-                                            nb_price=1):
-    """
-    Return the array of all prices during the simulation
+def importance_sampling_qmc_pricing(S0, K, r, sigma, T, n):
+    # Risk neutral measure
+    array_of_rand_VDC_seq = van_der_corput_sequence(n, 2)
+    u = scipy.stats.norm.ppf(array_of_rand_VDC_seq)
 
-    Parameters
-    ----------
-    spot_price : DOUBLE
-        Value of the underlying price today.
-    strike_price : DOUBLE
-         Strike value.
-    volatility : DOUBLE
-        Expected annualized volatility of the underlying during the period.
-    risk_free_rate : DOUBLE
-        Risk free rate.
-    maturity : DOUBLE
-        Maturity of the option.
-    nb_sequences : INT
-        Number of prices sequences.
-    nb_price : INT
-        Number of prices per sequences. Default : 1
+    is_S_T = S0 * np.exp((r - sigma * sigma / 2) * T + sigma * u)
 
+    # Drifting the measure with mu
+    u = np.random.normal(size=n)
+    mu = 9.2104
+    is_S_T_ = S0 * np.exp((mu - sigma * sigma / 2) * T + sigma * u)
 
-    Returns
-    -------
-    array_of_all_prices : ARRAY_LIKE
-        Array with all prices.
+    # Radon-nikodym derivative
+    is_radon_nikodym_der = np.exp(
+        -((np.log(is_S_T_ / S0) - (r - sigma * sigma / 2) * T) ** 2) / (2 * sigma * sigma * T) + (
+                (np.log(is_S_T_ / S0) - (mu - sigma * sigma / 2) * T) ** 2) / (2 * sigma * sigma * T) + 500)
 
-    """
+    # Two types of Calls
+    is_european_call = np.mean(np.maximum(is_S_T_ - K, 0) * is_radon_nikodym_der)
+    is_digital_call = np.mean(np.maximum(is_S_T_ - K, 0) * is_radon_nikodym_der * 1 / (is_S_T_ - K))
 
-    delta_t = maturity / nb_price
-
-    array_of_rand_VDC_seq = van_der_corput_sequence(nb_sequences, 2)
-
-    array_of_normal = scipy.stats.norm.ppf(array_of_rand_VDC_seq)
-
-    array_of_variation = ((risk_free_rate - ((volatility ** 2) / 2)) * delta_t) + (volatility * sqrt(delta_t)
-                                                                                   * array_of_normal)
-
-    # print(array_of_variation)
-    cumulated_variation = array_of_variation
-
-    cumulated_variation = np.cumsum(array_of_variation)#, axis=1)
-
-    array_of_all_prices = spot_price * np.exp(cumulated_variation)
-    # add S0 in all prices array
-    array_of_all_prices = np.c_[spot_price * np.ones(array_of_all_prices.shape[0]), array_of_all_prices]
-
-    return array_of_all_prices
+    return is_european_call, is_digital_call, is_S_T, is_S_T_
 
 
 if __name__ == '__main__':
-    k_ = 10
-    base10 = 10
+    k = 10
     base2 = 2
+    base10 = 10
 
-    # test_bary = generate_k_b_ary_expansion(k_, base2)
-    # print('Test bary {}'.format(test_bary))
-    # print(test_bary[-4:])
-    #
-    # test_b10 = van_der_corput_sequence(k_, base2)
-    # print('VDC {}'.format(test_b10))
-    # test_b2 = -van_der_corput_sequence(k_, base2)
-    #
-    # print("The Van Der Corput Sequences with base 2 is :\n{}".format(test_b2))
-    # print()
-    # print("The Van Der Corput Sequences with base 10 is :\n{}".format(test_b10))
+    test_bary = generate_k_b_ary_expansion(k, 2)
+    print('The b-ary expansion with k = {}, base = {} is : \n{}'.format(k, base2, test_bary))
 
-    # Variables definition
-    _spot_price = 100
-    _strike_price = 100
-    _maturity = 1.0
-    _volatility = 0.2
-    _risk_free_rate = 0.01
+    test_b10 = van_der_corput_sequence(k, base10)
+    test_b2 = van_der_corput_sequence(k, base2)
 
-    _nb_sequences = 1000
-    _nb_price = 1
+    print("\nThe Van Der Corput Sequences with base 2 is :\n{}".format(test_b2))
+    print()
+    print("The Van Der Corput Sequences with base 10 is :\n{}".format(test_b10))
 
-    price_evolution = price_evolution_with_QMC_method_VDC_seq(_spot_price, _strike_price, _volatility, _maturity,
-                                                              _risk_free_rate,
-                                                              _nb_sequences)
+    spot_price = 100
+    strike_price_ATM = 100
+    strike_price_OTM = 1_000_000
+    maturity = 1.0
+    volatility = 0.2
+    risk_free_rate = 0.01
+    nb_sequence = 100_000
 
-    call_price_MC = np.mean(np.maximum(price_evolution - _strike_price, 0)) * np.exp(-_risk_free_rate * _maturity)
+    # OTM Pricing with importance sampling
+    is_pricing = importance_sampling_pricing(spot_price, strike_price_OTM, risk_free_rate, volatility, maturity,
+                                             nb_sequence)
 
-    digital_call_payoff = price_evolution.copy()
-    digital_call_payoff[digital_call_payoff < _strike_price] = 0
-    digital_call_payoff[digital_call_payoff >= _strike_price] = 1
-    digital_call_price_MC = np.mean(digital_call_payoff) * np.exp(-_risk_free_rate * _maturity)
+    is_european_call = is_pricing[0]
+    is_digital_call = is_pricing[1]
+    is_ratio = is_european_call / is_digital_call
+    is_S_T = is_pricing[2]
+    is_S_T_ = is_pricing[3]
 
-    # Result
-    print('\nResult obtained with Monte Carlo classic method :\n')
-    plt.hist(price_evolution, 100)
-    plt.title("Repartition of price at maturity with Monte Carlo classic method.")
-    plt.show()
-    print('The price for this call with MC far from the money is {}'.format(call_price_MC))
-    # Result : The price for this call with MC far from the money is 0.0
-    print('The price for this digital call with MC far from the money is {}'.format(digital_call_price_MC))
-    # Result : The price for this digital call with MC far from the money is 0.0
+    print('\n### OTM PRICING WITH IMPORTANCE SAMPLING ###')
+    print('The Digital Call price OTM with Importance Sampling is : {}'.format(is_digital_call))
+    print('The Call price OTM with Importance Sampling is : {}'.format(is_european_call))
+    print('Ratio value with Importance Sampling : {}'.format(is_ratio))
+
+    # OTM Pricing with importance sampling
+    is_qmc_pricing = importance_sampling_qmc_pricing(spot_price, strike_price_OTM, risk_free_rate, volatility, maturity,
+                                                     nb_sequence)
+
+    is_qmc_european_call = is_qmc_pricing[0]
+    is_qmc_digital_call = is_qmc_pricing[1]
+    is_qmc_ratio = is_qmc_european_call / is_qmc_digital_call
+    # is_qmc_S_T = is_pricing[2]
+    is_qmc_S_T_ = is_pricing[3]
+    is_qmc_standard_error = stats.sem(is_qmc_S_T_)
+
+    print('\n### OTM PRICING WITH QMC IN IMPORTANCE SAMPLING ###')
+    print('The Digital Call price OTM with Importance Sampling is : {}'.format(is_qmc_digital_call))
+    print('The Call price OTM with Importance Sampling is : {}'.format(is_qmc_european_call))
+
+    print('Ratio value with Importance Sampling : {}'.format(is_qmc_ratio))
+    print('Standard error of the price with the new dynamic with QMC : {}'.format(is_qmc_standard_error))
